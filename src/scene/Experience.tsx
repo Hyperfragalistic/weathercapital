@@ -5,6 +5,7 @@ import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { lerp, weatherState } from "../state/weatherState";
 import { Sky } from "./Sky";
+import { CloudLayer } from "./Clouds";
 import { Rain } from "./Rain";
 import { Lightning } from "./Lightning";
 import { Weathervane } from "./Weathervane";
@@ -45,10 +46,11 @@ export function Experience() {
       <Lightning />
       <CameraRig />
       <Sky />
+      <CloudLayer />
       <Rain />
       <Weathervane />
       <ContactShadows
-        position={[0, -2.3, 0]}
+        position={[0, -1.42, 0]}
         opacity={0.4}
         scale={8}
         blur={2.5}

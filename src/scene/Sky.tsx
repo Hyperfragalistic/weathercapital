@@ -3,10 +3,10 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { lerp, weatherState } from "../state/weatherState";
 
-const CALM_TOP = new THREE.Color("#fbe8c0");
-const CALM_BOTTOM = new THREE.Color("#ffd9a0");
-const STORM_TOP = new THREE.Color("#2a2f3d");
-const STORM_BOTTOM = new THREE.Color("#565f72");
+const CALM_TOP = new THREE.Color("#2f7fd6");
+const CALM_BOTTOM = new THREE.Color("#bfe0f7");
+const STORM_TOP = new THREE.Color("#4a4f57");
+const STORM_BOTTOM = new THREE.Color("#7b818a");
 
 const vertexShader = /* glsl */ `
   varying vec3 vWorldPosition;
