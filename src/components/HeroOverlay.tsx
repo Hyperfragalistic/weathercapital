@@ -17,7 +17,17 @@ export function HeroOverlay() {
         Scroll
       </div>
       <footer className="hero-footer">
-        <span>&copy; {new Date().getFullYear()} Weather Capital</span>
+        <div className="hero-footer-col">
+          <span>&copy; {new Date().getFullYear()} Weather Capital</span>
+          <a
+            className="hero-credit"
+            href="https://sketchfab.com/3d-models/weather-vane-02ec0b7680524dc088060696e7c0d15b"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Weathervane model by FFeller (CC-BY)
+          </a>
+        </div>
         <a href="mailto:hello@weathercapital.com">hello@weathercapital.com</a>
       </footer>
     </div>

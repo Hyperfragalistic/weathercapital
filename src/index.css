@@ -197,6 +197,17 @@ body {
   opacity: 1;
 }
 
+.hero-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.hero-credit {
+  font-size: 0.65rem;
+  opacity: 0.6;
+}
+
 @media (max-width: 640px) {
   .hero-spacer {
     height: 320vh;
