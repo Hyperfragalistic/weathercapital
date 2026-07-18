@@ -24,15 +24,16 @@ export function Weathervane() {
   const { scene, nodes } = useGLTF(MODEL_URL);
   const roosterRef = useRef<THREE.Object3D | null>(null);
 
-  // Wind-gust spring: the vane doesn't spin continuously, it settles/wobbles
-  // toward a slowly wandering "wind direction" target, same as a real vane.
-  const windAngle = useRef(0);
-  const windVelocity = useRef(0);
-  const noisePhase = useRef({
-    a: Math.random() * Math.PI * 2,
-    b: Math.random() * Math.PI * 2,
-    c: Math.random() * Math.PI * 2,
-  });
+  // Gust-driven wind physics: a slow prevailing-direction drift the vane
+  // settles toward, punctuated by irregular random gust impulses (same
+  // random-interval idiom as the lightning strikes in Lightning.tsx) rather
+  // than smooth continuous wobble. Only rotation.y is ever touched - no
+  // position or other-axis motion, so the vane never bobs or tilts.
+  const angle = useRef(0);
+  const angularVelocity = useRef(0);
+  const phase = useRef(Math.random() * Math.PI * 2);
+  const clock = useRef(0);
+  const nextGustAt = useRef(1 + Math.random() * 2);
 
   useEffect(() => {
     const named = nodes as Record<string, THREE.Object3D>;
@@ -48,32 +49,37 @@ export function Weathervane() {
 
   useFrame((state, delta) => {
     const storm = weatherState.stormFactor;
-    const t = state.clock.elapsedTime;
-    const { a, b, c } = noisePhase.current;
+    clock.current += delta;
 
-    // Wandering wind-direction target: three slow sine waves at different
-    // frequencies/phases stand in for gusty, non-periodic wind. Storm widens
-    // the swing (can exceed a full turn) and speeds up the gusts.
-    const amplitude = lerp(0.5, Math.PI * 2.2, storm);
-    const target =
-      Math.sin(t * lerp(0.12, 0.9, storm) + a) * amplitude * 0.6 +
-      Math.sin(t * lerp(0.05, 0.5, storm) + b) * amplitude * 0.3 +
-      Math.sin(t * lerp(0.3, 2.2, storm) + c) * amplitude * 0.1;
+    // Prevailing wind direction: one slow sine, not several stacked - the
+    // vane's "home" heading that it settles toward between gusts.
+    const baseline =
+      Math.sin(state.clock.elapsedTime * lerp(0.03, 0.15, storm) + phase.current) *
+      lerp(0.6, 2.5, storm);
 
-    // Shortest-path angular difference so corrections don't take the long way.
-    let diff = (target - windAngle.current) % (Math.PI * 2);
+    // Irregular gust impulses, not a continuous force - this is what actually
+    // reads as wind hitting it, rather than mechanical wobble.
+    if (clock.current >= nextGustAt.current) {
+      const gustStrength = lerp(0.8, 6, storm) * (0.5 + Math.random());
+      const gustDir = Math.random() < 0.5 ? -1 : 1;
+      angularVelocity.current += gustDir * gustStrength;
+      nextGustAt.current =
+        clock.current + lerp(2.5, 0.4, storm) * (0.5 + Math.random());
+    }
+
+    // Settling spring pulls back toward the prevailing baseline between gusts.
+    let diff = (baseline - angle.current) % (Math.PI * 2);
     if (diff > Math.PI) diff -= Math.PI * 2;
     if (diff < -Math.PI) diff += Math.PI * 2;
 
-    // Spring-damper: storm makes it snappier and less damped (more whip/overshoot).
-    const stiffness = lerp(6, 22, storm);
-    const damping = lerp(4.5, 2.2, storm);
-    windVelocity.current += diff * stiffness * delta;
-    windVelocity.current *= Math.max(0, 1 - damping * delta);
-    windAngle.current += windVelocity.current * delta;
+    const stiffness = lerp(3, 8, storm);
+    const damping = lerp(2.5, 1.4, storm);
+    angularVelocity.current += diff * stiffness * delta;
+    angularVelocity.current *= Math.max(0, 1 - damping * delta);
+    angle.current += angularVelocity.current * delta;
 
     if (roosterRef.current) {
-      roosterRef.current.rotation.y = windAngle.current;
+      roosterRef.current.rotation.y = angle.current;
     }
   });
 

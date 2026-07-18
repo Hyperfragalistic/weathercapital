@@ -12,7 +12,7 @@ export function CameraRig() {
     const sway = weatherState.reducedMotion ? 0 : 1;
 
     camera.position.x = BASE_POSITION.x + Math.sin(t * 0.15) * 0.18 * sway;
-    camera.position.y = BASE_POSITION.y + Math.sin(t * 0.1) * 0.08 * sway;
+    camera.position.y = BASE_POSITION.y;
     // Subtle push-in during the storm for drama.
     camera.position.z = BASE_POSITION.z - storm * 0.6;
     camera.lookAt(0, 0.6, 0);
